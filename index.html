@@ -1,41 +1,47 @@
-<!DOCTYPE html>
-<style>
-
-.axis--x path {
-  display: none;
-}
-
-</style>
 <html>
 <head>
-<meta charset="utf-8">
-<script src="http://d3js.org/d3.v4.min.js"></script>
+  <title>A D3 map</title>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+  <script src='precincts.js'></script>
 </head>
 <body>
-<script type="text/javascript">
+<script>
 
-  var dataset;
-  
-  var w = 800;
-  var h = 400;
+var width = 700,
+    height = 700;
 
-  format = d3.format(",");
+var bwidth = 600,
+    bheight = 300;
 
-  var svg = d3.select("body")
-              .append("svg")
-              .attr("width", w)
-              .attr("height", h),
-      margin = {top: 20, right: 10, bottom: 30, left: 75},
-      width = +svg.attr("width") - margin.left - margin.right,
-      height = +svg.attr("height") - margin.top - margin.bottom;
+var margin = {top: 30, right: 20, bottom: 30, left: 50};
 
-  var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-      y = d3.scaleLinear().rangeRound([height, 0]);
+var space = 100;
 
-  var g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var x = d3.scaleBand().rangeRound([0, bwidth-margin.left-margin.right-space]).padding(0.1),
+    y = d3.scaleLinear().rangeRound([bheight, 0]);
 
-  function handleMouseOver() {  // Add interactivity
+format = d3.format(",");
+
+function handleMouseOver() {  // Add interactivity
+            // Use D3 to select element, change color and size
+            d3.select(this)
+              .attr("fill", "teal");
+}
+
+function handleMouseOut() {
+            // Use D3 to select element, change color back to normal
+            d3.select(this).attr("fill", function(d) {return d.properties.Color});
+}
+
+function handleMouseClick() {  // Add interactivity
+            // Use D3 to select element, change color and size
+            var pct = d3.select(this).data()[0].properties.Precinct;
+
+            d3.selectAll("#bar").remove();
+            drawBar(pct);
+}
+
+function barhandleMouseOver() {  // Add interactivity
 
             // Use D3 to select element, change color and size
             d3.select(this)
@@ -43,83 +49,124 @@
 
             d3.select(this.parentNode) 
               .append("text")
-              .attr("id", function(d) { return "t" + d.boro.replace(/\s/g, ""); })
-              .attr("x", function(d) { return x(d.boro) + x.bandwidth()/2; })
-              .attr("y", function(d) { return y(d.arrests)+15; })
+              .attr("id", function(d) { return "t" + d.Stops.replace(/\s/g, ""); })
+              .attr("x", function(d) { return x(d.Year) + x.bandwidth()/2; })
+              .attr("y", function(d) { return y(d.Stops)-10; })
               .attr("dy", ".35em")
-              .text(function(d){ return format(d.arrests)})
+              .text(function(d){ return format(d.Stops)})
               .attr("fill", "black")
               .attr("text-anchor", "middle");
-  }
+}
 
-  function handleMouseOut() {
+function barhandleMouseOut() {
             // Use D3 to select element, change color back to normal
             d3.select(this).attr("fill", "teal");
 
             data = d3.select(this).data()[0];
 
-            d3.select("#t" + data.boro.replace(/\s/g, "")).remove();
+            d3.select("#t" + data.Stops.replace(/\s/g, "")).remove();
+}
+
+var g = d3.select('body')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+var albersProjection = d3.geoAlbers()
+  .scale(90000)
+  .rotate([73.95, 0])
+  .center([0, 40.69])
+  .translate([width/2, height/2]);
+
+var geoPath = d3.geoPath()
+    .projection(albersProjection);
+
+g.selectAll('path')
+  .data(precincts_json.features)
+  .enter()
+  .append('path')
+  .attr('fill', function(d) {return d.properties.Color})
+  .attr('stroke', "black")
+  .attr('d', geoPath)
+  .on("mouseover", handleMouseOver)
+  .on("mouseout", handleMouseOut)
+  .on("click", handleMouseClick);
+
+
+
+  function drawBar(precinct) {
+
+    var g2 = d3.select('body')
+             .append('svg')
+             .attr("id","bar")
+             .attr('width', bwidth)
+             .attr('height', height)
+             .append('g')
+             .attr("transform", "translate(" + (margin.left+space) + "," + ((height-bheight)/2) + ")");
+             
+
+    var name = "stops.year."+precinct+".csv"
+
+    d3.csv(name, function(error, data) {
+      if (error) throw error;
+
+      x.domain(data.map(function(d) { return d.Year; }))
+      y.domain([0, d3.max(data, function(d) { return +d.Stops; })])
+
+      var bar = g2.selectAll("g")
+                  .data(data)
+                  .enter().append("g");
+
+      bar.append("rect")
+        .attr("x", function(d) { return x(d.Year); })
+        .attr("y", function(d) { return y(d.Stops); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return bheight - y(d.Stops); })
+        .attr("fill", "teal")
+        .on("mouseover", barhandleMouseOver)
+        .on("mouseout", barhandleMouseOut);
+
+      g2.append("text")
+        .attr("x",(bwidth-margin.left-margin.right-space)/2)
+        .attr("y",-55)
+        .text("Number of Stops")
+        .attr("text-anchor", "middle");
+
+      g2.append("text")
+        .attr("x",(bwidth-margin.left-margin.right-space)/2)
+        .attr("y",-30)
+        .text("Precinct "+precinct)
+        .attr("text-anchor", "middle");
+
+      g2.append("g")
+          .attr("class", "axis axis--x")
+          .attr("transform", "translate(0," + bheight + ")")
+          .call(d3.axisBottom(x));
+
+      g2.append("g")
+          .attr("class", "axis axis--y")
+          .call(d3.axisLeft(y).ticks(5))
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 5)
+          .attr("dy", "0.71em")
+          .attr("text-anchor", "end")
+          .text("Arrests");
+  
+    });
   }
 
-  d3.csv("data.csv", function(d) {
-      d.arrests = +d.arrests;
-      return d;
-  }, function(error, data) {
-    if (error) throw error;
+// g.selectAll(".place-label")
+//     .data(precincts_json.features)
+//   .enter().append("text")
+//     .attr("class", "place-label")
+//     .attr("transform", function(d) { return "translate(" + geoPath.centroid(d) + ")"; })
+//     .attr("dy", ".35em")
+//     .text(function(d) { return d.properties.Marijuana; })
+//     .attr("text-anchor", "middle");
 
-    x.domain(data.map(function(d) { return d.boro; }))
-    y.domain([0, d3.max(data, function(d) { return d.arrests; })])
-
-    var bar = g.selectAll("g")
-               .data(data)
-               .enter().append("g");
-
-    bar.append("rect")
-      .attr("x", function(d) { return x(d.boro); })
-      .attr("y", function(d) { return y(d.arrests); })
-      .attr("width", x.bandwidth())
-      .attr("height", function(d) { return height - y(d.arrests); })
-      .attr("fill", "teal")
-      .on("mouseover", handleMouseOver)
-      .on("mouseout", handleMouseOut);
-
-    g.append("g")
-        .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-
-    g.append("g")
-        .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y).ticks(10))
-      .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "0.71em")
-        .attr("text-anchor", "end")
-        .text("Arrests");
-  
-    // var bar = g.selectAll("g")
-
-
-
-    // g.selectAll(".bar")
-    // .data(data)
-    // .enter().append("rect")
-    //   .attr("class", "bar")
-    //   .attr("x", function(d) { return x(d.boro); })
-    //   .attr("y", function(d) { return y(d.arrests); })
-    //   .attr("width", x.bandwidth())
-    //   .attr("height", function(d) { return height - y(d.arrests); })
-    //   .attr("fill", "teal")
-    //   .text("text")
-    //   .on("mouseover", handleMouseOver)
-    //   .on("mouseout", handleMouseOut);
-
-    // g.append("text")
-    //   .text("text");
-
-  });
-
-</script>
+  </script>
 </body>
 </html>
