@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>A D3 map</title>
+  <script src='https://d3js.org/d3.v4.min.js'></script>
+  <script src='precincts.js'></script>
+</head>
+<body>
+  <script>
+var width = 700,
+    height = 700;
+
+function handleMouseOver() {  // Add interactivity
+            // Use D3 to select element, change color and size
+            d3.select(this)
+              .attr("fill", "teal");
+}
+
+function handleMouseOut() {
+            // Use D3 to select element, change color back to normal
+            d3.select(this).attr("fill", "#ccc");
+}
+
+var svg = d3.select('body')
+  .append('svg')
+  .attr('width', width)
+  .attr('height', height);
+
+var g = svg.append('g');
+
+var albersProjection = d3.geoAlbers()
+  .scale(80000)
+  .rotate([74.0060, 0])
+  .center([0, 40.7128])
+  .translate([width/2, height/2]);
+
+var geoPath = d3.geoPath()
+    .projection(albersProjection);
+
+g.selectAll('path')
+  .data(precincts_json.features)
+  .enter()
+  .append('path')
+  .attr('fill', '#ccc')
+  .attr('stroke', "black")
+  .attr('d', geoPath)
+  .on("mouseover", handleMouseOver)
+  .on("mouseout", handleMouseOut);
+
+  </script>
+</body>
+</html>

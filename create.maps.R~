@@ -1,0 +1,22 @@
+library(rgdal)
+library(RColorBrewer)
+library(dplyr)
+
+setwd("~/Documents/nypdPrecincts/")
+precincts.2016 <- readOGR(
+    dsn=getwd(),
+    layer="nypp")
+
+sqf <- readRDS("~/Documents/d3Demo/sqfTotal.rds")
+
+sqf.pct.cuts <- count(sqf, "pct")
+sqf.pct.cuts <- sqf.pct.cuts[1:77,]
+
+cuts <- quantile(table(sqf$pct),probs=seq(0,1,.2))
+
+sqf.pct.cuts$group <- NA
+sqf.pct.cuts$group[which(sqf.pct.cuts$freq < cuts[2])] <- 1
+sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[2] & < cuts[3])] <- 2
+sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[3] & < cuts[4])] <- 3
+sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[4] & < cuts[5])] <- 4
+sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[5]] <- 5
