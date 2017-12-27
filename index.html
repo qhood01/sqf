@@ -7,6 +7,8 @@
 <body>
 <script>
 
+var colors = ["#FEE5D9", "#FCAE91", "#FB6A4A", "#DE2D26", "#A50F15"];
+
 var width = 700,
     height = 700;
 
@@ -53,7 +55,7 @@ function barhandleMouseOver() {  // Add interactivity
               .attr("x", function(d) { return x(d.Year) + x.bandwidth()/2; })
               .attr("y", function(d) { return y(d.Stops)-10; })
               .attr("dy", ".35em")
-              .text(function(d){ return format(d.Stops)})
+              .text(function(d){ return format(d.Stops); })
               .attr("fill", "black")
               .attr("text-anchor", "middle");
 }
@@ -87,14 +89,35 @@ g.selectAll('path')
   .data(precincts_json.features)
   .enter()
   .append('path')
-  .attr('fill', function(d) {return d.properties.Color})
-  .attr('stroke', "black")
+  .attr('fill', function(d) { return d.properties.Color; })
+  .attr('stroke', 'black')
   .attr('d', geoPath)
   .on("mouseover", handleMouseOver)
   .on("mouseout", handleMouseOut)
   .on("click", handleMouseClick);
 
+g.selectAll('rect')
+ .data(colors)
+ .enter()
+ .append('rect')
+ .attr('fill', function(d) { return d; })
+ .attr('stroke', 'black')
+ .attr('x', function(d,i){ return i*50; })
+ .attr('y', 0)
+ .attr('height', 20)
+ .attr('width', 50);
 
+ g.append('text')
+  .attr('x', 25)
+  .attr('y', 35)
+  .text('Less Stops')
+  .attr('text-anchor', 'middle');
+
+ g.append('text')
+  .attr('x', 4*50+25)
+  .attr('y', 35)
+  .text('More Stops')
+  .attr('text-anchor', 'middle');
 
   function drawBar(precinct) {
 
