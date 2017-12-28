@@ -7,8 +7,16 @@ precincts.2016 <- readOGR(dsn=getwd(), layer="nypp")
 
 sqf <- readRDS("~/Documents/d3Demo/sqfTotal.rds")
 
-sqf.pct.cuts <- count(sqf, "pct")
-sqf.pct.cuts <- sqf.pct.cuts[1:77,]
+pct.pop <- read.csv("~/Documents/d3Demo/precinct.population.csv")
+
+pct.pop.03.16 <- pct.pop[,c(1,5:17,17)]
+names(pct.pop.03.16)[15] <- "X2016"
+
+sqf.pct.year <- table(sqf$pct, sqf$year)[1:77,]
+
+sqf.pct.year.rate <- cbind("Precinct"=pct.pop.03.16$Precinct, sqf.pct.year/pct.pop.03.16[,-1]*100000)
+
+sqf.pct.cuts <- as.data.frame(cbind("Precinct"=sqf.pct.year.rate$Precinct,"Avg. Rate"=apply(sqf.pct.year.rate[,-1],1,mean,na.rm=TRUE)))
 
 colors <- brewer.pal(5, "Reds")
 cuts <- quantile(table(sqf$pct),probs=seq(0,1,.2))
@@ -33,5 +41,5 @@ subdat<-spTransform(precincts.2016, CRS("+init=epsg:4326"))
 subdat_data<-subdat@data[,c("Precinct", "Color")]
 row.names(subdat_data) <- row.names(subdat)
 subdat<-SpatialPolygonsDataFrame(subdat, data=subdat_data)
-mapdat<- "~/Documents/d3Demo/precincts.colors.geojson"
+mapdat<- "/Users/quinnhood/Documents/d3Demo/precincts.colors.geojson"
 writeOGR(subdat, mapdat, layer="", driver="GeoJSON")

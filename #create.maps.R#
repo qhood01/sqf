@@ -7,18 +7,27 @@ precincts.2016 <- readOGR(dsn=getwd(), layer="nypp")
 
 sqf <- readRDS("~/Documents/d3Demo/sqfTotal.rds")
 
-sqf.pct.cuts <- count(sqf, "pct")
-sqf.pct.cuts <- sqf.pct.cuts[1:77,]
+pct.pop <- read.csv("~/Documents/d3Demo/precinct.population.csv")
+
+pct.pop.03.16 <- pct.pop[,c(1,5:17,17)]
+names(pct.pop.03.16)[15] <- "X2016"
+
+sqf.pct.year <- table(sqf$pct, sqf$year)[1:77,]
+
+sqf.pct.year.rate <- cbind("Precinct"=pct.pop.03.16$Precinct, sqf.pct.year/pct.pop.03.16[,-1]*100000)
+
+sqf.pct.cuts <- as.data.frame(cbind("Precinct"=sqf.pct.year.rate$Precinct,"avgRate"=apply(sqf.pct.year.rate[,-1],1,mean,na.rm=TRUE)))
+sqf.pct.cuts$avgRate[which(sqf.pct.cuts$Precinct == 22)] <- NA
 
 colors <- brewer.pal(5, "Reds")
-cuts <- quantile(table(sqf$pct),probs=seq(0,1,.2))
+cuts <- quantile(sqf.pct.cuts$avgRate,probs=seq(0,1,.2),na.rm=TRUE)
 
 sqf.pct.cuts$group <- NA
-sqf.pct.cuts$group[which(sqf.pct.cuts$freq < cuts[2])] <- colors[1]
-sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[2] & sqf.pct.cuts$freq < cuts[3])] <- colors[2]
-sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[3] & sqf.pct.cuts$freq < cuts[4])] <- colors[3]
-sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[4] & sqf.pct.cuts$freq < cuts[5])] <- colors[4]
-sqf.pct.cuts$group[which(sqf.pct.cuts$freq >= cuts[5])] <- colors[5]
+sqf.pct.cuts$group[which(sqf.pct.cuts$avgRate < cuts[2])] <- colors[1]
+sqf.pct.cuts$group[which(sqf.pct.cuts$avgRate >= cuts[2] & sqf.pct.cuts$avgRate < cuts[3])] <- colors[2]
+sqf.pct.cuts$group[which(sqf.pct.cuts$avgRate >= cuts[3] & sqf.pct.cuts$avgRate < cuts[4])] <- colors[3]
+sqf.pct.cuts$group[which(sqf.pct.cuts$avgRate >= cuts[4] & sqf.pct.cuts$avgRate < cuts[5])] <- colors[4]
+sqf.pct.cuts$group[which(sqf.pct.cuts$avgRate >= cuts[5])] <- colors[5]
 
 pct.colors <- sqf.pct.cuts[,-c(2)]
 
