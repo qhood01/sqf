@@ -3,9 +3,12 @@
   <title>NYC SQF</title>
   <script src='https://d3js.org/d3.v4.min.js'></script>
   <script src='precincts.js'></script>
+  <script src='streets.js'></script>
 </head>
 <body>
 <script>
+
+var current = null;
 
 var colors = ["#FEE5D9", "#FCAE91", "#FB6A4A", "#DE2D26", "#A50F15"];
 
@@ -26,17 +29,23 @@ format = d3.format(",");
 
 function handleMouseOver() {  // Add interactivity
             // Use D3 to select element, change color and size
-            d3.select(this)
-              .attr("fill", "teal");
+            d3.select(this).attr("fill", "teal");
 }
 
 function handleMouseOut() {
             // Use D3 to select element, change color back to normal
-            d3.select(this).attr("fill", function(d) {return d.properties.Color});
+            d3.select(this).attr("fill", function(d) { return d.properties.Color; });
+            current.attr("fill","teal");
 }
 
 function handleMouseClick() {  // Add interactivity
             // Use D3 to select element, change color and size
+            if (current != null) {
+              current.attr("fill", function(d) { return d.properties.Color; });
+            }
+
+            current = d3.select(this).attr("fill", "teal");
+
             var pct = d3.select(this).data()[0].properties.Precinct;
 
             d3.selectAll("#bar").remove();
