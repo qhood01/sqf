@@ -107,17 +107,23 @@ g.selectAll('rect')
  .attr('height', 20)
  .attr('width', 50);
 
- g.append('text')
-  .attr('x', 25)
-  .attr('y', 35)
-  .text('Less Stops')
-  .attr('text-anchor', 'middle');
+g.append('text')
+ .attr('x', 125)
+ .attr('y', 10)
+ .text('Stops per 100,000 population')
+ .attr('text-anchor', 'middle');
 
- g.append('text')
-  .attr('x', 4*50+25)
-  .attr('y', 35)
-  .text('More Stops')
-  .attr('text-anchor', 'middle');
+g.append('text')
+ .attr('x', 25)
+ .attr('y', 35)
+ .text('Less Stops')
+ .attr('text-anchor', 'middle');
+
+g.append('text')
+ .attr('x', 4*50+25)
+ .attr('y', 35)
+ .text('More Stops')
+ .attr('text-anchor', 'middle');
 
   function drawBar(precinct) {
 
