@@ -1,0 +1,32 @@
+{
+"type": "FeatureCollection",
+"features": [
+{ "type": "Feature", "id": 3457, "properties": { "Date": "20150212", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.000425801167736, 40.737550123887367 ] } },
+{ "type": "Feature", "id": 4230, "properties": { "Date": "20150221", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.999487666181437, 40.728319514910396 ] } },
+{ "type": "Feature", "id": 4412, "properties": { "Date": "20150224", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.000064948215012, 40.732927959931274 ] } },
+{ "type": "Feature", "id": 5527, "properties": { "Date": "20150312", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.001248566641721, 40.739205203482207 ] } },
+{ "type": "Feature", "id": 5528, "properties": { "Date": "20150312", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.001248566641721, 40.739205203482207 ] } },
+{ "type": "Feature", "id": 6005, "properties": { "Date": "20150319", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.999534539671529, 40.732658973084455 ] } },
+{ "type": "Feature", "id": 7301, "properties": { "Date": "20150407", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.00306346500426, 40.734541834538057 ] } },
+{ "type": "Feature", "id": 8947, "properties": { "Date": "20150430", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.99238272589335, 40.735480329053729 ] } },
+{ "type": "Feature", "id": 9346, "properties": { "Date": "20150506", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.0010067906004, 40.739100905277404 ] } },
+{ "type": "Feature", "id": 9348, "properties": { "Date": "20150506", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.00366967783954, 40.734810802670232 ] } },
+{ "type": "Feature", "id": 9896, "properties": { "Date": "20150514", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.000956164527452, 40.731706540222248 ] } },
+{ "type": "Feature", "id": 13216, "properties": { "Date": "20150706", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.008202650826561, 40.742144546804383 ] } },
+{ "type": "Feature", "id": 13983, "properties": { "Date": "20150719", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.00596144570693, 40.740113568772657 ] } },
+{ "type": "Feature", "id": 14022, "properties": { "Date": "20150720", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.000515959569512, 40.730614130566167 ] } },
+{ "type": "Feature", "id": 14752, "properties": { "Date": "20150803", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.006845084393206, 40.735499590814975 ] } },
+{ "type": "Feature", "id": 15229, "properties": { "Date": "20150811", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.997806285163861, 40.73014750243447 ] } },
+{ "type": "Feature", "id": 15724, "properties": { "Date": "20150819", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.99342938259035, 40.733161076603679 ] } },
+{ "type": "Feature", "id": 15909, "properties": { "Date": "20150822", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.996355592372964, 40.734593967937748 ] } },
+{ "type": "Feature", "id": 16064, "properties": { "Date": "20150826", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.996659075856115, 40.72693062090336 ] } },
+{ "type": "Feature", "id": 16065, "properties": { "Date": "20150826", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.996659075856115, 40.72693062090336 ] } },
+{ "type": "Feature", "id": 16573, "properties": { "Date": "20150908", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.009255068754925, 40.732554301437361 ] } },
+{ "type": "Feature", "id": 17102, "properties": { "Date": "20150920", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.992267367869943, 40.734533381408149 ] } },
+{ "type": "Feature", "id": 17466, "properties": { "Date": "20151001", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.006393742735185, 40.732425492397446 ] } },
+{ "type": "Feature", "id": 17487, "properties": { "Date": "20151002", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.000111864990956, 40.738724878600756 ] } },
+{ "type": "Feature", "id": 17745, "properties": { "Date": "20151007", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -73.992267367869943, 40.734533381408149 ] } },
+{ "type": "Feature", "id": 19750, "properties": { "Date": "20151114", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.009699694526503, 40.738156306475602 ] } },
+{ "type": "Feature", "id": 19751, "properties": { "Date": "20151114", "Precinct": 6 }, "geometry": { "type": "Point", "coordinates": [ -74.009699694526503, 40.738156306475602 ] } }
+]
+}
