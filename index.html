@@ -65,6 +65,7 @@ function drawStops(precinct,year) {
   var pointsPath = "./Data/points."+precinct+"."+year+".geojson";
   d3.json(pointsPath, function(error,data) {
     stops_data = data;
+    run = true;
   });
 }
 
@@ -138,7 +139,11 @@ function barhandleMouseOver() {  // Add interactivity
 
 function barhandleMouseOut() {
             // Use D3 to select element, change color back to normal
-            d3.select(this).attr("fill", "teal");
+            
+            if (!d3.select(this).classed("on")) {
+              d3.select(this).attr("fill", "teal");
+            }
+           
 
             data = d3.select(this).data()[0];
 
@@ -146,11 +151,18 @@ function barhandleMouseOut() {
 }
 
 function barhandleClick(d) {
-  run = !run;
-  if (!run) {
-    svg.selectAll('#sqf').remove();
+  on = d3.select(this).classed("on");
+  d3.selectAll("#barrect").classed("on",false);
+  d3.selectAll("#barrect").attr("fill","teal");
+  svg.selectAll('#sqf').remove();
+  if (on) {
+    run = false;
+    d3.select(this).classed("on",false);
+    d3.select(this).attr("fill", "teal");
   } else {
     stops = g.append('g').attr('id','sqf');
+    d3.select(this).classed("on",true);
+    d3.select(this).attr("fill", "orange");
     if (centered) {
       var yr = d.Year;
       drawStops(pct,yr);
@@ -251,6 +263,7 @@ function drawBar() {
                   .enter().append("g");
 
       bar.append("rect")
+        .attr("id","barrect")
         .attr("x", function(d) { return x(d.Year); })
         .attr("y", function(d) { return y(d.Stops); })
         .attr("width", x.bandwidth())
