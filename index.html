@@ -180,8 +180,8 @@ d3.interval(function() {
          .filter(function(d){ return d.properties.Date === date; })
          .attr('cx', function(d) { return albersProjection(d.geometry.coordinates)[0]; })
          .attr('cy', function(d) { return albersProjection(d.geometry.coordinates)[1]; })
-         .attr('stroke','blue')
-         .attr('fill', 'none')
+         .attr('stroke', function(d) { return d.properties.Fill; })
+         .attr('fill', function(d) { return d.properties.Fill; })
          .attr('r', '1px');
 
     i++;
@@ -207,14 +207,14 @@ function drawStops(precinct,year) {
 
 function handleMouseOver() {  // Add interactivity
             // Use D3 to select element, change color and size
-            d3.select(this).attr("fill", "teal");
+            d3.select(this).attr("fill", "grey");
 }
 
 function handleMouseOut() {
             // Use D3 to select element, change color back to normal
             d3.select(this).attr("fill", function(d) { return d.properties.Color; });
             if (current != null) { 
-              current.attr("fill","teal");
+              current.attr("fill","grey");
             } 
 }
 
@@ -236,7 +236,7 @@ function handleMouseClick(d) {  // Add interactivity
                 current.attr("fill", function(d) { return d.properties.Color; });
                 d3.selectAll("#bar").transition().duration(1000).style("opacity",0).remove();
               }
-              current = d3.select(this).attr("fill", "teal");
+              current = d3.select(this).attr("fill", "grey");
               drawBar();
             } else {
               x = (width / 2)-margin.left;

@@ -84,8 +84,21 @@ for (y in 2006:2016) {
     ## Convert to lat,long
     longlatcoor<-spTransform(coors,CRS("+proj=longlat"))
 
+
+
     ## Create dataframe with date of stop and precinct to be merged
-    df <- data.frame("Date"=ydf$date,"Precinct"=ydf$pct)
+    ## Other - Yellow
+    ydf$fill <- "#ffff33"
+    ## Black - Blue
+    ydf$fill[which(trimws(ydf$race) == "B")] <- "#377eb8"
+    ## White - Green
+    ydf$fill[which(trimws(ydf$race) == "W")] <- "#4daf4a"
+    ## Asian - Orange
+    ydf$fill[which(trimws(ydf$race) == "A")] <- "#ff7f00"
+    ## Hispanic (Black or White) - Purple
+    ydf$fill[which(trimws(ydf$race) == "P" | trimws(ydf$race) == "Q")] <- "#984ea3"
+
+    df <- data.frame("Date"=ydf$date,"Precinct"=ydf$pct,"Fill"=ydf$fill)
 
     ## Merge data and coordinates
     spdf <- SpatialPointsDataFrame(longlatcoor,df)
