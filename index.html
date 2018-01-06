@@ -59,7 +59,7 @@ var current = null,
     stops,
     i=0,
     pct,
-    g2;
+    slider;
 
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -73,6 +73,10 @@ var dateRange;
 
 var x = d3.scaleBand().rangeRound([0, bwidth-margin.left-margin.right-space]).padding(0.1),
     y = d3.scaleLinear().rangeRound([bheight, 0]);
+
+var xslider = d3.scaleLinear()
+                .domain([0, 365])
+                .range([0, 410]);
 
 format = d3.format(",");
 
@@ -144,50 +148,6 @@ g.append('text')
  .text('More Stops')
  .attr('text-anchor', 'middle');
 
-g2 = d3.select('body')
-       .append('svg')
-       .attr("id","bar")
-       .attr('width', bwidth)
-       .attr('height', height)
-       .append('g')
-       .attr("transform", "translate(" + (margin.left+space) + "," + ((height-bheight)/2) + ")");
-
-var xslider = d3.scaleLinear()
-                .domain([0, 365])
-                .range([0, 410]);
-
-var slider = d3.select("#bar")
-               .append('g')
-               .attr('height', 10)
-               .attr("transform", "translate(" + (margin.left+space) + "," + margin.top + ")");
-
-slider.append("line")
-    .attr("class", "track")
-    .attr("x1", xslider.range()[0])
-    .attr("x2", xslider.range()[1])
-  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    .attr("class", "track-inset")
-  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
-    .attr("class", "track-overlay")
-    .call(d3.drag()
-        .on("start.interrupt", function() { slider.interrupt(); })
-        .on("start drag", function() { i = d3.format(".0f")(xslider.invert(d3.event.x)); }));
-
-slider.insert("g", ".track-overlay")
-    .attr("class", "ticks")
-    .attr("transform", "translate(0," + 18 + ")")
-  .selectAll("text")
-  .data(sumDays)
-  .enter().append("text")
-    .attr("x", function(d) {return xslider(d);})
-    .attr("text-anchor", "middle")
-    .text(function(d,i) { return months[i] ; });
-
-slider.insert("circle", ".track-overlay")
-      .attr("class", "handle")
-      .attr("cx", xslider(i%365))
-      .attr("id", "longitude")
-      .attr("r", 9);
 
 d3.interval(function() {
   if (run) {
@@ -265,8 +225,6 @@ function handleMouseClick(d) {  // Add interactivity
             run = false;
 
             pct = d.properties.Precinct;
-
-            svg.selectAll('#sqf').remove();
 
             if (d && centered !== d) {
               var centroid = geoPath.centroid(d);
@@ -349,6 +307,17 @@ function drawBar() {
 
     var name = "stops.year."+pct+".csv";
 
+    d3.selectAll('#sqf').remove();
+
+    g2 = d3.select('body')
+       .append('svg')
+       .attr('id','sqf')
+       .attr('width', bwidth)
+       .attr('height', height)
+       .append('g')
+       .attr("transform", "translate(" + (margin.left+space) + "," + ((height-bheight)/2) + ")");
+
+
     d3.csv(name, function(error, data) {
       if (error) throw error;
 
@@ -356,6 +325,7 @@ function drawBar() {
       y.domain([0, d3.max(data, function(d) { return +d.Stops; })])
 
       var bar = g2.selectAll("g")
+                  .attr("id","bar")
                   .data(data)
                   .enter().append("g");
 
@@ -397,6 +367,39 @@ function drawBar() {
           .attr("text-anchor", "end")
           .text("Arrests");
     });
+
+    slider = d3.select("#sqf")
+               .append('g')
+               .attr('height', 10)
+               .attr("transform", "translate(" + (margin.left+space) + "," + margin.top + ")");
+
+    slider.append("line")
+        .attr("class", "track")
+        .attr("x1", xslider.range()[0])
+        .attr("x2", xslider.range()[1])
+      .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+        .attr("class", "track-inset")
+      .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+        .attr("class", "track-overlay")
+        .call(d3.drag()
+            .on("start.interrupt", function() { slider.interrupt(); })
+            .on("start drag", function() { i = d3.format(".0f")(xslider.invert(d3.event.x)); }));
+
+    slider.insert("g", ".track-overlay")
+        .attr("class", "ticks")
+        .attr("transform", "translate(0," + 18 + ")")
+      .selectAll("text")
+      .data(sumDays)
+      .enter().append("text")
+        .attr("x", function(d) {return xslider(d);})
+        .attr("text-anchor", "middle")
+        .text(function(d,i) { return months[i] ; });
+
+    slider.insert("circle", ".track-overlay")
+          .attr("class", "handle")
+          .attr("cx", xslider(i%365))
+          .attr("id", "longitude")
+          .attr("r", 9);
 }
 
 
