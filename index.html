@@ -180,8 +180,8 @@ d3.interval(function() {
          .filter(function(d){ return d.properties.Date === date; })
          .attr('cx', function(d) { return albersProjection(d.geometry.coordinates)[0]; })
          .attr('cy', function(d) { return albersProjection(d.geometry.coordinates)[1]; })
-         .attr('stroke', function(d) { return d.properties.Fill; })
-         .attr('fill', function(d) { return d.properties.Fill; })
+         .attr('stroke', 'blue')
+         .attr('fill', 'blue')
          .attr('r', '1px');
 
     i++;
@@ -274,7 +274,7 @@ function barhandleMouseOut() {
             // Use D3 to select element, change color back to normal
             
             if (!d3.select(this).classed("on")) {
-              d3.select(this).attr("fill", "teal");
+              d3.select(this).attr("fill", "grey");
             }
            
 
@@ -286,12 +286,12 @@ function barhandleMouseOut() {
 function barhandleClick(d) {
   on = d3.select(this).classed("on");
   d3.selectAll("#barrect").classed("on",false);
-  d3.selectAll("#barrect").attr("fill","teal");
+  d3.selectAll("#barrect").attr("fill","grey");
   svg.selectAll('#sqf').remove();
   if (on) {
     run = false;
     d3.select(this).classed("on",false);
-    d3.select(this).attr("fill", "teal");
+    d3.select(this).attr("fill", "grey");
   } else {
     stops = g.append('g').attr('id','sqf');
     d3.select(this).classed("on",true);
@@ -335,7 +335,7 @@ function drawBar() {
         .attr("y", function(d) { return y(d.Stops); })
         .attr("width", x.bandwidth())
         .attr("height", function(d) { return bheight - y(d.Stops); })
-        .attr("fill", "teal")
+        .attr("fill", "grey")
         .on("mouseover", barhandleMouseOver)
         .on("mouseout", barhandleMouseOut)
         .on("click", barhandleClick);
