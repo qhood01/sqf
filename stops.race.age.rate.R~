@@ -1,0 +1,18 @@
+census <- read.csv("~/Downloads/nycTotal.csv")
+census.black <- census[c(14:26,26),c(1,grep("Black",names(census)))]
+census.black <- census.black[,c(1,18:66,121:169)]
+names <- unlist(lapply(names(census.black), function(x) substr(x,8,nchar(x))))
+names(census.black) <- names
+
+census.white <- census[c(14:26,26),c(1,grep("White",names(census)))]
+census.white <- census.white[,c(1,18:66,121:169)]
+names(census.white) <- names
+
+census.hisp <- census[c(14:26,26),c(1,grep("Hisp",names(census)))]
+census.hisp <- census.hisp[,c(1,18:66,121:169)]
+names(census.hisp) <- names
+
+
+write.csv(census.black,"~/Documents/d3Demo/census.black.csv")
+write.csv(census.white,"~/Documents/d3Demo/census.white.csv")
+write.csv(census.hisp,"~/Documents/d3Demo/census.hisp.csv")

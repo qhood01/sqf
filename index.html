@@ -6,6 +6,16 @@
 </head>
 <style type="text/css">
 
+.axis--x path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
 .ticks {
   font: 10px sans-serif;
 }
@@ -41,6 +51,11 @@
   stroke-width: 1.25px;
 }
 
+.active {
+  stroke: #000;
+  stroke-width: 2px;
+}
+
 </style>
 <body>
 <script>
@@ -59,7 +74,36 @@ var current = null,
     stops,
     i=0,
     pct,
-    slider;
+    slider,
+    cols,
+    sum,
+    names;
+
+d3.csv("census.black.csv", function(error, data) {
+    if (error) throw error;
+    censusBlack = data;
+});
+d3.csv("census.hisp.csv", function(error, data) {
+    if (error) throw error;
+    censusHisp = data;
+});
+d3.csv("census.white.csv", function(error, data) {
+    if (error) throw error;
+    censusWhite = data;
+});
+d3.csv("stops.black.csv", function(error, data) {
+    if (error) throw error;
+    stopsBlack = data;
+});
+d3.csv("stops.hisp.csv", function(error, data) {
+    if (error) throw error;
+    stopsHisp = data;
+});
+d3.csv("stops.white.csv", function(error, data) {
+    if (error) throw error;
+    stopsWhite = data;
+    getRates(16,64,"M");
+});
 
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -151,7 +195,6 @@ g.append('text')
 
 d3.interval(function() {
   if (run) {
-    console.log(i);
     var date = dateRange[i%dateRange.length];
 
     d3.selectAll('circle').remove();
@@ -307,7 +350,12 @@ function drawBar() {
 
     var name = "stops.year."+pct+".csv";
 
+    xslider = d3.scaleLinear()
+                .domain([0, 365])
+                .range([0, 410]);
+
     d3.selectAll('#sqf').remove();
+    d3.selectAll("#age-range").remove();
 
     g2 = d3.select('body')
        .append('svg')
@@ -402,7 +450,216 @@ function drawBar() {
           .attr("r", 9);
 }
 
+g2 = d3.select('body')
+       .append('svg')
+       .attr('id','sqf')
+       .attr('width', bwidth)
+       .attr('height', height)
+       .append('g')
+       .attr("transform", "translate(" + (margin.left+space) + "," + ((height-bheight)/2) + ")");
 
+var xslider = d3.scaleLinear()
+                .domain([16, 64])
+                .range([0, 410]);
+
+ageMin = 16;
+ageMax = 64;
+
+ages = [];
+for (var a=ageMin; a <= ageMax; a=a+2){
+    ages.push(a);
+}
+
+slider = d3.select("#sqf")
+           .attr("id","age-range")
+           .append('g')
+           .attr('height', 10)
+           .attr("transform", "translate(" + (margin.left+space) + "," + margin.top + ")");
+
+slider.append("line")
+    .attr("class", "track")
+    .attr("x1", xslider.range()[0])
+    .attr("x2", xslider.range()[1])
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay");
+
+slider.insert("g", ".track-overlay")
+    .attr("class", "ticks")
+    .attr("transform", "translate(0," + 18 + ")")
+  .selectAll("text")
+  .data(ages)
+  .enter().append("text")
+    .attr("x", function(d) {return xslider(d);})
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d ; });
+
+slider.append("circle")
+      .attr("class", "handle")
+      .attr("cx", xslider(ageMin))
+      .attr("id", "longitude")
+      .attr("r", 9)
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", draggedmin)
+        .on("end", dragended));
+
+slider.append("circle")
+      .attr("class", "handle")
+      .attr("cx", xslider(ageMax))
+      .attr("id", "longitude")
+      .attr("r", 9)
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", draggedmax)
+        .on("end", dragended));
+
+function dragstarted(d) {
+  //d3.select(this).raise().classed("active", true);
+}
+
+function draggedmin(d) {
+  ageMin = Math.max(Math.min(d3.format(".0f")(xslider.invert(d3.event.x)),ageMax),16);
+  d3.select(this).attr("cx", xslider(ageMin))
+                 .attr("class", "handle");
+}
+
+function draggedmax(d) {
+  //console.log(d3.format(".0f")(xslider.invert(d3.event.x)));
+  ageMax = Math.min(Math.max(d3.format(".0f")(xslider.invert(d3.event.x)),ageMin),64);
+  console.log(ageMax);
+  d3.select(this).attr("cx", xslider(ageMax))
+                 .attr("class", "handle");
+}
+
+function dragended(d) {
+  //d3.select(this).classed("active", false);
+  getRates(ageMin,ageMax,"M");
+}
+
+slider.insert("text")
+          .attr("id","dateText")
+          .attr("x", 205)
+          .attr("y", -15)
+          .text("Age Range")
+          .attr("text-anchor","middle");
+
+function getRates(minAge, maxAge, sex) {
+    var x = d3.scaleLinear().range([0, bwidth-margin.left-margin.right-space]),
+        y = d3.scaleLinear().range([bheight, 0]),
+        z = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var line = d3.line().x(function(d) { return x(d.year); })
+                        .y(function(d) { return y(d.rate); });
+
+    d3.selectAll("#line").remove();
+
+    g3 = g2.append("g").attr("id","line");
+    cols = [];
+    for (var age = minAge; age <= maxAge; age++) {
+        if(sex=="all") {
+            cnamem = "M"+age;
+            cnamef = "F"+age;
+            cols.push(cnamem);
+            cols.push(cnamef);
+        } else {
+            cname = sex+age;
+            cols.push(cname);
+        }
+    }
+    rateBlack = [];
+    rateHisp = [];
+    rateWhite = [];
+    for (var yr = 2003;  yr <= 2016; yr++) {
+        r = yr-2003;
+        pb = d3.sum(cols, function(d){return(censusBlack[r][d]);});
+        sb = d3.sum(cols, function(d){return(stopsBlack[r][d]);});
+        bRate = (sb/pb)*100000;
+        rateBlack.push({year: yr,
+                        rate: bRate});
+
+        ph = d3.sum(cols, function(d){return(censusHisp[r][d]);});
+        sh = d3.sum(cols, function(d){return(stopsHisp[r][d]);});
+        hRate = (sh/ph)*100000;
+        rateHisp.push({year: yr,
+                       rate: hRate});
+
+        pw = d3.sum(cols, function(d){return(censusWhite[r][d]);});
+        sw = d3.sum(cols, function(d){return(stopsWhite[r][d]);});
+        wRate = (sw/pw)*100000;
+        rateWhite.push({year: yr,
+                        rate: wRate});
+    }
+    lineData = [{id: "Black",
+                 values: rateBlack},
+                {id: "Hispanic",
+                 values: rateHisp},
+                {id: "White",
+                 values: rateWhite}];
+    points = rateBlack.concat(rateHisp).concat(rateWhite);
+
+  x.domain([2003,2016]);
+
+  y.domain([
+    d3.min(lineData, function(c) { return d3.min(c.values, function(d) { return d.rate; }); }),
+    d3.max(lineData, function(c) { return d3.max(c.values, function(d) { return d.rate; }); })
+  ]);
+
+  z.domain(lineData.map(function(c) { return c.id; }));
+
+  g3.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + bheight + ")")
+      .call(d3.axisBottom(x));
+
+  g3.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("Stop Rate");
+
+  var city = g3.selectAll(".city")
+    .data(lineData)
+    .enter().append("g")
+      .attr("class", "city");
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return z(d.id); });
+
+  g3.selectAll("dot")
+        .data(points)
+      .enter().append("circle")
+        .attr("r", 5)
+        .attr("cx", function(d) { return x(d.year); })
+        .attr("cy", function(d) { return y(d.rate); })
+        .on("mouseover", hoverover)
+        .on("mouseout", hoverout);
+
+  g3.selectAll("rates")
+   .data(points)
+   .enter().append("text")
+   .attr("id", function(d) { return "text"+d.year; })
+   .attr("x", function(d) { return x(d.year); })
+   .attr("y", function(d) { return y(d.rate)-10; })
+   .text(function(d) { return d3.format(",.0f")(d.rate); })
+   .attr("text-anchor","middle")
+   .attr("visibility","hidden");
+}
+
+function hoverover(d) {
+    d3.selectAll("#text"+d.year).attr("visibility","visible");
+}
+
+function hoverout(d) {
+    d3.selectAll("#text"+d.year).attr("visibility","hidden");
+}
 
   </script>
 </body>
